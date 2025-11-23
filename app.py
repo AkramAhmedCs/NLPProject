@@ -1,22 +1,3 @@
-"""
-Flask API Server for Markov Chain Text Generator
-Provides REST API endpoints for training and text generation
-"""
-
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from markov_engine import MarkovChain, analyze_text
-from corpuses import CORPUSES
-
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-
-# Global Markov Chain instance (in production, use session-based storage)
-markov = MarkovChain()
-
-
-@app.route('/')
-def index():
     """API home endpoint"""
     return jsonify({
         'message': 'Markov Chain Text Generator API',
