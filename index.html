@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markov Chain Text Generator - Interactive NLP Tool</title>
+    <meta name="description"
+        content="Interactive NLP tool using higher-order Markov Chains for text generation and analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🔗</span>
+                    <span class="logo-text">Markov Chain Generator</span>
+                </h1>
+                <p class="subtitle">Interactive Text Generation & Analysis</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+
+            <!-- Corpus Selection Section -->
+            <section class="section" id="corpus-section">
+                <div class="section-header">
+                    <h2>📚 Choose Your Corpus</h2>
+                    <p class="section-description">Select a pre-loaded corpus or provide your own text</p>
+                </div>
+
+                <div class="corpus-tabs">
+                    <button class="tab-btn active" data-tab="preloaded">Pre-loaded Corpuses</button>
+                    <button class="tab-btn" data-tab="custom">Custom Text</button>
+                    <button class="tab-btn" data-tab="upload">Upload File</button>
+                </div>
+
+                <div class="tab-content active" id="preloaded-tab">
+                    <div class="corpus-grid">
+                        <button class="corpus-card" data-corpus="shakespeare">
+                            <div class="corpus-icon">🎭</div>
+                            <h3>Romeo & Juliet</h3>
+                            <p>William Shakespeare</p>
+                        </button>
+                        <button class="corpus-card" data-corpus="hamlet">
+                            <div class="corpus-icon">👑</div>
+                            <h3>Hamlet</h3>
+                            <p>William Shakespeare</p>
+                        </button>
+                        <button class="corpus-card" data-corpus="alice">
+                            <div class="corpus-icon">🐰</div>
+                            <h3>Alice in Wonderland</h3>
+                            <p>Lewis Carroll</p>
+                        </button>
+                        <button class="corpus-card" data-corpus="tech">
+                            <div class="corpus-icon">💻</div>
+                            <h3>Tech Blog</h3>
+                            <p>Modern Technology</p>
+                        </button>
+                        <button class="corpus-card" data-corpus="twitter">
+                            <div class="corpus-icon">💬</div>
+                            <h3>Social Media</h3>
+                            <p>Tweet Style</p>
+                        </button>
+                        <button class="corpus-card" data-corpus="scifi">
+                            <div class="corpus-icon">🚀</div>
+                            <h3>Sci-Fi</h3>
+                            <p>Science Fiction</p>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="custom-tab">
+                    <div class="custom-input-wrapper">
+                        <textarea id="custom-text" class="custom-textarea"
+                            placeholder="Paste your text here... (Minimum 100 words recommended for better results)"
+                            rows="10"></textarea>
+                        <button id="use-custom-btn" class="btn btn-primary">Use This Text</button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="upload-tab">
+                    <div class="upload-wrapper">
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon">📄</div>
+                            <p class="upload-text">Drag & drop a text file here</p>
+                            <p class="upload-subtext">or</p>
+                            <button class="btn btn-secondary" id="browse-btn">Browse Files</button>
+                            <input type="file" id="file-input" accept=".txt,.md" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="selected-corpus-info" id="corpus-info" style="display: none;">
+                    <div class="info-badge">
+                        <span class="badge-label">Selected:</span>
+                        <span id="selected-corpus-name">None</span>
+                    </div>
+                    <div class="info-badge">
+                        <span class="badge-label">Words:</span>
+                        <span id="corpus-word-count">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Model Configuration Section -->
+            <section class="section" id="config-section">
+                <div class="section-header">
+                    <h2>⚙️ Model Configuration</h2>
+                    <p class="section-description">Configure your Markov Chain parameters</p>
+                </div>
+
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="order-select" class="config-label">
+                            <span>Markov Chain Order</span>
+                            <span class="tooltip"
+                                title="Higher orders produce more coherent text but need more training data">ℹ️</span>
+                        </label>
+                        <select id="order-select" class="config-select">
+                            <option value="1">1st Order (Next word depends on 1 previous word)</option>
+                            <option value="2" selected>2nd Order (Next word depends on 2 previous words)</option>
+                            <option value="3">3rd Order (Next word depends on 3 previous words)</option>
+                            <option value="4">4th Order (Next word depends on 4 previous words)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <button id="train-btn" class="btn btn-primary btn-large" disabled>
+                            <span class="btn-icon">🎓</span>
+                            Train Model
+                        </button>
+                    </div>
+                </div>
+
+                <div class="model-status" id="model-status" style="display: none;">
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span id="status-text">Model not trained</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Text Generation Section -->
+            <section class="section" id="generation-section">
+                <div class="section-header">
+                    <h2>✨ Generate Text</h2>
+                    <p class="section-description">Create new text based on the trained model</p>
+                </div>
+
+                <div class="generation-controls">
+                    <div class="control-row">
+                        <div class="control-item">
+                            <label for="length-slider" class="control-label">
+                                Text Length: <span id="length-value">50</span> words
+                            </label>
+                            <input type="range" id="length-slider" class="slider" min="20" max="200" value="50"
+                                step="10">
+                        </div>
+
+                        <div class="control-item">
+                            <label for="seed-input" class="control-label">
+                                Seed Word(s) <span class="optional">(optional)</span>
+                            </label>
+                            <input type="text" id="seed-input" class="text-input" placeholder="e.g., 'love' or 'to be'">
+                        </div>
+                    </div>
+
+                    <button id="generate-btn" class="btn btn-accent btn-large" disabled>
+                        <span class="btn-icon">🎲</span>
+                        Generate Text
+                    </button>
+                </div>
+
+                <!-- Error Notification -->
+                <div class="error-notification" id="error-notification" style="display: none;">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-content">
+                        <div class="error-title">Seed Word Not Found</div>
+                        <div class="error-message" id="error-message"></div>
+                    </div>
+                    <button class="error-close" id="error-close">✕</button>
+                </div>
+
+                <div class="output-wrapper" id="output-wrapper" style="display: none;">
+                    <div class="output-header">
+                        <h3>Generated Text</h3>
+                        <button id="copy-btn" class="btn btn-small">
+                            <span class="btn-icon">📋</span>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="output-box" id="output-box"></div>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section class="section" id="analysis-section">
+                <div class="section-header">
+                    <h2>📊 Text Analysis</h2>
+                    <p class="section-description">Statistical insights and model metrics</p>
+                </div>
+
+                <div class="analysis-tabs">
+                    <button class="analysis-tab-btn active" data-analysis-tab="statistics">Statistics</button>
+                    <button class="analysis-tab-btn" data-analysis-tab="ngrams">N-Grams</button>
+                    <button class="analysis-tab-btn" data-analysis-tab="comparison">Comparison</button>
+                </div>
+
+                <div class="analysis-tab-content active" id="statistics-tab">
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Model Order</div>
+                            <div class="stat-value" id="stat-order">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Words</div>
+                            <div class="stat-value" id="stat-words">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Unique Words</div>
+                            <div class="stat-value" id="stat-unique">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">States</div>
+                            <div class="stat-value" id="stat-states">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Transitions</div>
+                            <div class="stat-value" id="stat-transitions">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Vocabulary Richness</div>
+                            <div class="stat-value" id="stat-vocab">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-tab-content" id="ngrams-tab">
+                    <div class="ngram-controls">
+                        <label for="ngram-size" class="control-label">N-Gram Size:</label>
+                        <select id="ngram-size" class="config-select">
+                            <option value="1">1-gram (Words)</option>
+                            <option value="2" selected>2-gram (Bigrams)</option>
+                            <option value="3">3-gram (Trigrams)</option>
+                            <option value="4">4-gram</option>
+                        </select>
+                        <button id="show-ngrams-btn" class="btn btn-secondary" disabled>Show N-Grams</button>
+                    </div>
+                    <div class="ngram-list" id="ngram-list"></div>
+                </div>
+
+                <div class="analysis-tab-content" id="comparison-tab">
+                    <div class="comparison-wrapper">
+                        <p class="comparison-hint">Generate text first to see a comparison between the original corpus
+                            and generated text.</p>
+                        <div class="comparison-grid" id="comparison-grid"></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Built with Markov Chains • Interactive NLP Tool</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+
+</html>
